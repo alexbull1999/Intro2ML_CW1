@@ -43,6 +43,15 @@ def compare_and_visualise_data():
     difference = training_data_instances.max(axis=0) - training_data_instances.min(axis=0)
     formatted_difference = [f"{x:.2g}" for x in difference]
     print(formatted_difference)
+    print(f"Max value per attribute: {training_data_instances.max(axis=0)}")
+    print(f"Min value per attribute: {training_data_instances.min(axis=0)}")
+
+    print(training_data_instances.dtype)
+
+    percentage_difference = abs(training_percentage_split - noisy_percentage_split)
+    attribute_change = (training_percentage_split - noisy_percentage_split)
+    print(f"Percentage difference per attribute: {percentage_difference}")
+    print(f"Attribute movements: {attribute_change}")
 
 
 

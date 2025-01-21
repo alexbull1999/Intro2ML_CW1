@@ -29,7 +29,7 @@ def read_dataset(filepath):
       if not line:
         continue
       values = line.split(',')
-      features.append(tuple(map(float, values[:-1]))) #Extract features and convert to float (ignores final value in slice)
+      features.append(tuple(map(int, values[:-1]))) #Extract features and convert to float (ignores final value in slice)
       labels.append(values[-1]) #extract the lables
 
     #Convert features to a NumPy array of tuples
