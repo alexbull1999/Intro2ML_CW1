@@ -8,22 +8,35 @@
 ##############################################################################
 
 import numpy as np
-
+from find_best_node import find_best_node
 
 class DecisionTreeClassifier(object):
     """ Basic decision tree classifier
     
     Attributes:
     is_trained (bool): Keeps track of whether the classifier has been trained
+    feature: Feature index for splitting
+    threshold = Threshold value for the split
+    label = Label for leaf nodes (None for internal nodes)
+    children = Child nodes (list of TreeNodes)
     
     Methods:
+    is_leaf(self): returns true if this node is a leaf node (i.e. if self.label is not None)
     fit(x, y): Constructs a decision tree from data X and label y
     predict(x): Predicts the class label of samples X
     prune(x_val, y_val): Post-prunes the decision tree
+
     """
 
-    def __init__(self):
+    def __init__(self, feature=None, threshold=None, label=None, children=None):
         self.is_trained = False
+        self.feature = feature
+        self.threshold = threshold
+        self.label = label
+        self.children = children or []
+
+    def is_leaf(self):
+        return self.label is not None
     
 
     def fit(self, x, y):
@@ -43,21 +56,43 @@ class DecisionTreeClassifier(object):
 
         #######################################################################
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
-        #######################################################################    
-        # Sort by the first attribute (column 0)
-        attribute_index = 0
-        sorted_indices = np.argsort(x[:, attribute_index])
+        #######################################################################
 
-        # Sort x and y using the same indices
-        x_sorted = x[sorted_indices]
-        y_sorted = y[sorted_indices]
+        # 2 base cases - all samples have same label or dataset cannot be split further
+        # base case 1: all labels are same
+        if len(np.unique(y)) == 1:
+            return DecisionTreeClassifier(label=y[0]) #in this case all labels identical in the sample, so can return any
 
+        # base case 2: labels are different but all features are identical
+        all_identical = True
+        for col_index in np.arange(x.shape[1]):
+            column = x[:, col_index]
+            if np.all(column == column[0]) is not True:
+                all_identical = False
+        if all_identical:
+            # return majority class label
+            unique, counts = np.unique(y, return_counts=True)
+            return DecisionTreeClassifier(label=unique[np.argmax(counts)])
 
+        #else we find the best node / split point that maximises the information gain and record what it is
+        feature_index, threshold = find_best_node(x, y)
+        node = TreeNode(feature=feature_index, threshold=threshold)
 
-        
+        #then we need to split the dataset based on this split point
+        left_dataset, left_labels, right_dataset, right_labels = split_dataset(x, y, feature_index, threshold)
+
+        #finally we can recursively create child nodes
+        node.children = [self.fit(left_dataset, left_labels), self.fit(right_dataset, right_labels)]
+
         # set a flag so that we know that the classifier has been trained
         self.is_trained = True
-        
+
+        return node
+
+
+
+
+
     
     def predict(self, x):
         """ Predicts a set of samples using the trained DecisionTreeClassifier.
