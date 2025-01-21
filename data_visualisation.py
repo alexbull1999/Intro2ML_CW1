@@ -28,7 +28,6 @@ def compare_and_visualise_data():
     for i in range(6):
         print(f"Training data has: {training_percentage_split[i]}% instances of {labels[i]}")
 
-
     sub_indices_map, sub_freq = np.unique(sub_class_labels, return_counts=True)
     sub_percentage_split = np.round((sub_freq / len(sub_class_labels)) * 100, 3)
     for i in range(6):
@@ -49,24 +48,9 @@ def compare_and_visualise_data():
     print(training_data_instances.dtype)
 
     percentage_difference = abs(training_percentage_split - noisy_percentage_split)
-    attribute_change = (training_percentage_split - noisy_percentage_split)
-    print(f"Percentage difference per attribute: {percentage_difference}")
-    print(f"Attribute movements: {attribute_change}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    class_change = (training_percentage_split - noisy_percentage_split)
+    print(f"Percentage difference per class: {percentage_difference}")
+    print(f"Class movements: {class_change}")
 
 
 
