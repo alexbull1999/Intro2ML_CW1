@@ -6,9 +6,11 @@ from improvement import train_and_predict
 
 if __name__ == "__main__":
     print("Loading the training dataset...")
-    training_instances, class_labels, unique_classes = read_dataset("data/train_full.txt")
+    training_instances, class_labels_index_mapped, unique_classes, class_labels_str = read_dataset("data/train_full.txt")
 
-    print(training_instances.shape)
-    print(class_labels.shape)
-    print(unique_classes.shape)
+    print("Training the decision tree...")
+    classifier = DecisionTreeClassifier()
+    classifier.fit(training_instances, class_labels_str)
+
+
 

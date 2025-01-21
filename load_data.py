@@ -17,7 +17,6 @@ def read_dataset(filepath):
                    unique class labels corresponding to the integers in y
     """
 
-    # TODO: Complete this function
     with open(filepath, 'r') as file:
       lines = file.readlines()
 
@@ -35,7 +34,9 @@ def read_dataset(filepath):
     #Convert features to a NumPy array of tuples
     training_instances = np.array(features)
 
+    training_labels_str = np.array(labels, dtype=str)
+
     #Map string labels to integer classification
     unique_classes, class_labels = np.unique(labels, return_inverse=True)
 
-    return training_instances, class_labels, unique_classes
+    return training_instances, class_labels, unique_classes, training_labels_str

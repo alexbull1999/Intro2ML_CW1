@@ -36,15 +36,23 @@ class DecisionTreeClassifier(object):
         y (numpy.ndarray): Class labels, numpy array of shape (N, )
                            Each element in y is a str 
         """
-        
+
         # Make sure that x and y have the same number of instances
         assert x.shape[0] == len(y), \
             "Training failed. x and y must have the same number of instances."
-        
+
         #######################################################################
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################    
-        
+        # Sort by the first attribute (column 0)
+        attribute_index = 0
+        sorted_indices = np.argsort(x[:, attribute_index])
+
+        # Sort x and y using the same indices
+        x_sorted = x[sorted_indices]
+        y_sorted = y[sorted_indices]
+
+
 
         
         # set a flag so that we know that the classifier has been trained

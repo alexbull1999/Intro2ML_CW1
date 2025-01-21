@@ -6,9 +6,9 @@ from improvement import train_and_predict
 
 def compare_and_visualise_data():
     print("Loading the training dataset...")
-    training_data_instances, training_class_labels, training_unique_classes = read_dataset("data/train_full.txt")
-    sub_instances, sub_class_labels, sub_unique_classes = read_dataset("data/train_sub.txt")
-    noisy_instances, noisy_class_labels, noisy_unique_classes = read_dataset("data/train_noisy.txt")
+    training_data_instances, training_class_labels, training_unique_classes, training_str_labels = read_dataset("data/train_full.txt")
+    sub_instances, sub_class_labels, sub_unique_classes, sub_str_labels = read_dataset("data/train_sub.txt")
+    noisy_instances, noisy_class_labels, noisy_unique_classes, noisy_str_labels = read_dataset("data/train_noisy.txt")
 
     print("Number of instances per dataset:")
     print(f"Training data has: {len(training_data_instances)} instances")
@@ -51,6 +51,9 @@ def compare_and_visualise_data():
     class_change = (training_percentage_split - noisy_percentage_split)
     print(f"Percentage difference per class: {percentage_difference}")
     print(f"Class movements: {class_change}")
+
+    #print(len(training_data_instances) == len(training_str_labels))
+
 
 
 
