@@ -39,6 +39,14 @@ def compare_and_visualise_data():
     for i in range(6):
         print(f"Noisy data has: {noisy_percentage_split[i]}% instances of {labels[i]}")
 
+    print("Range for each feature")
+    difference = training_data_instances.max(axis=0) - training_data_instances.min(axis=0)
+    formatted_difference = [f"{x:.2g}" for x in difference]
+    print(formatted_difference)
+
+
+
+
 
 
 
