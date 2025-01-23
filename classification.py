@@ -9,6 +9,8 @@
 
 import numpy as np
 from find_best_node import find_best_node
+from split_dataset import split_dataset
+from calc_entropy import calculate_entropy
 
 class DecisionTreeClassifier(object):
     """ Basic decision tree classifier
@@ -64,33 +66,46 @@ class DecisionTreeClassifier(object):
             return DecisionTreeClassifier(label=y[0]) #in this case all labels identical in the sample, so can return any
 
         # base case 2: labels are different but all features are identical
-        all_identical = True
-        for col_index in np.arange(x.shape[1]):
-            column = x[:, col_index]
-            if np.all(column == column[0]) is not True:
-                all_identical = False
-        if all_identical:
-            # return majority class label
+        elif np.all(x == x[0, :], axis=0).all():  # Check if all rows are identical across all columns
+            # Return majority class label
             unique, counts = np.unique(y, return_counts=True)
             return DecisionTreeClassifier(label=unique[np.argmax(counts)])
 
-        #else we find the best node / split point that maximises the information gain and record what it is
-        feature_index, threshold = find_best_node(x, y)
-        node = DecisionTreeClassifier(feature=feature_index, threshold=threshold)
+        #else we attempt to find the best node / split point that maximises the information gain and record what it is
+        else:
+            feature_index, threshold = find_best_node(x, y)
+            if feature_index is None and threshold is None:
+                #if no split point can improve IG return majority class label
+                unique, counts = np.unique(y, return_counts=True)
+                return DecisionTreeClassifier(label=unique[np.argmax(counts)])
 
-        #then we need to split the dataset based on this split point
-        left_dataset, left_labels, right_dataset, right_labels = split_dataset(x, y, feature_index, threshold)
+            else:
+                node = DecisionTreeClassifier(feature=feature_index, threshold=threshold)
+                # then we need to split the dataset based on this split point,
+                left_dataset, left_labels, right_dataset, right_labels = split_dataset(x, y, feature_index, threshold)
 
-        #finally we can recursively create child nodes
-        node.children = [self.fit(left_dataset, left_labels), self.fit(right_dataset, right_labels)]
+                # finally we can recursively create child nodes
+                node.children = [self.fit(left_dataset, left_labels), self.fit(right_dataset, right_labels)]
+
+
 
         # set a flag so that we know that the classifier has been trained
         self.is_trained = True
 
         return node
 
-
-
+    """
+            elif:
+                all_identical = True
+                for col_index in np.arange(x.shape[1]):
+                    column = x[:, col_index]
+                    if np.all(column == column[0]) is not True:
+                        all_identical = False
+                if all_identical:
+                    # return majority class label
+                    unique, counts = np.unique(y, return_counts=True)
+                    return DecisionTreeClassifier(label=unique[np.argmax(counts)])
+            """
 
 
     
@@ -126,3 +141,5 @@ class DecisionTreeClassifier(object):
         # remember to change this if you rename the variable
         return predictions
         
+
+

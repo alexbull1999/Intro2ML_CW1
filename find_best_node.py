@@ -20,12 +20,51 @@ def find_best_node(data, labels):
     # Calculate original entropy of dataset as a whole
     entropy = calculate_entropy(labels)
 
-    # Sort by the first attribute (column 0)
-    attribute_index = 0
-    sorted_indices = np.argsort(data[:, attribute_index])
+    best_attribute_index = None
+    best_threshold = None
+    best_information_gain = 0
 
-    # Sort x and y using the same indices
-    data_sorted = data[sorted_indices]
-    labels_sorted = labels[sorted_indices]
+    # Sort by the first attribute (column 0)
+    for attribute_index in range(data.shape[1]):
+        sorted_indices = np.argsort(data[:, attribute_index])
+
+        # Sort x and y using the same indices
+        data_sorted = data[sorted_indices]
+        labels_sorted = labels[sorted_indices]
+
+        #find the min and max value in the dataset for use later to ensure splits don't leave empty sets
+        min_value = np.min(data[:, attribute_index])
+        max_value = np.max(data[:, attribute_index])
+
+        for row in range(len(labels_sorted)):
+            #skip invalid splits that would leave an empty dataset
+            if row == 0 or row == len(labels_sorted):
+                continue
+
+
+            #if there is a change in label, calc entropy
+            if labels_sorted[row] != labels_sorted[row-1]: #and data_sorted[row, attribute_index] != data_sorted[row-1, attribute_index]:
+                # slice up to and not including row (i.e. where the change is)
+                entropy_left = calculate_entropy(labels_sorted[0:row])
+                entropy_right = calculate_entropy(labels_sorted[row:])
+                weighted_entropy_left = (len(labels_sorted[0:row])/len(labels_sorted)) * entropy_left
+                weighted_entropy_right = (len(labels_sorted[row:])/len(labels_sorted)) * entropy_right
+                information_gain = entropy - (weighted_entropy_left + weighted_entropy_right)
+                if information_gain > best_information_gain:
+                    best_information_gain = information_gain
+                    best_attribute_index = attribute_index
+                    best_threshold = data_sorted[row, attribute_index] ##threshold being treated as always strict less than inequality
+                    if best_threshold == min_value:
+                        best_threshold += 0.5
+                    elif best_threshold == max_value:
+                        best_threshold -= 0.5 #avoiding empty splits and infinite recursion...
+
+
+    return best_attribute_index, best_threshold
+
+
+
+
+
 
 
