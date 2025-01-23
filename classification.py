@@ -76,7 +76,7 @@ class DecisionTreeClassifier(object):
 
         #else we find the best node / split point that maximises the information gain and record what it is
         feature_index, threshold = find_best_node(x, y)
-        node = TreeNode(feature=feature_index, threshold=threshold)
+        node = DecisionTreeClassifier(feature=feature_index, threshold=threshold)
 
         #then we need to split the dataset based on this split point
         left_dataset, left_labels, right_dataset, right_labels = split_dataset(x, y, feature_index, threshold)
