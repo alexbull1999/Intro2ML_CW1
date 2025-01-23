@@ -5,10 +5,13 @@ from classification import DecisionTreeClassifier
 from improvement import train_and_predict
 
 def compare_and_visualise_data():
+
     print("Loading the training dataset...")
     training_data_instances, training_class_labels, training_unique_classes, training_str_labels = read_dataset("data/train_full.txt")
     sub_instances, sub_class_labels, sub_unique_classes, sub_str_labels = read_dataset("data/train_sub.txt")
     noisy_instances, noisy_class_labels, noisy_unique_classes, noisy_str_labels = read_dataset("data/train_noisy.txt")
+
+    print(training_data_instances.shape, training_class_labels.shape, training_unique_classes.shape, training_str_labels.shape)
 
     print("Number of instances per dataset:")
     print(f"Training data has: {len(training_data_instances)} instances")
