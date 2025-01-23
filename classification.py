@@ -8,7 +8,8 @@
 ##############################################################################
 
 import numpy as np
-
+from load_data import read_dataset
+from calc_entropy import calculate_entropy
 
 class DecisionTreeClassifier(object):
     """ Basic decision tree classifier
@@ -21,6 +22,17 @@ class DecisionTreeClassifier(object):
     predict(x): Predicts the class label of samples X
     prune(x_val, y_val): Post-prunes the decision tree
     """
+
+    training_data_instances, training_class_labels, training_unique_classes, training_str_labels = read_dataset(
+        "data/train_full.txt")
+
+    #print(training_class_labels)
+    #print(training_unique_classes)
+    #print(training_str_labels)
+    #print(training_data_instances)
+
+    entropy = calculate_entropy(training_class_labels)
+    print(entropy)
 
     def __init__(self):
         self.is_trained = False
@@ -51,6 +63,8 @@ class DecisionTreeClassifier(object):
         # Sort x and y using the same indices
         x_sorted = x[sorted_indices]
         y_sorted = y[sorted_indices]
+
+
 
 
 
