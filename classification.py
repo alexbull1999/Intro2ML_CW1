@@ -94,20 +94,6 @@ class DecisionTreeClassifier(object):
 
         return node
 
-    """
-            elif:
-                all_identical = True
-                for col_index in np.arange(x.shape[1]):
-                    column = x[:, col_index]
-                    if np.all(column == column[0]) is not True:
-                        all_identical = False
-                if all_identical:
-                    # return majority class label
-                    unique, counts = np.unique(y, return_counts=True)
-                    return DecisionTreeClassifier(label=unique[np.argmax(counts)])
-            """
-
-
     
     def predict(self, x):
         """ Predicts a set of samples using the trained DecisionTreeClassifier.
@@ -136,7 +122,10 @@ class DecisionTreeClassifier(object):
         #######################################################################
         #                 ** TASK 2.2: COMPLETE THIS METHOD **
         #######################################################################
-        
+
+
+
+
     
         # remember to change this if you rename the variable
         return predictions

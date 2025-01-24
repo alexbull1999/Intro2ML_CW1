@@ -42,7 +42,7 @@ def find_best_node(data, labels):
                 continue
 
 
-            #if there is a change in label, calc entropy
+            #if there is a change in attribute value (i.e. a split point), calc entropy
             if data_sorted[row, attribute_index] != data_sorted[row-1, attribute_index]:
                 #if labels_sorted[row] == labels_sorted[row-1]:
                     #continue ### Excluded this code following chat with Rob <-- see if extra logic required with Josiah
@@ -55,11 +55,7 @@ def find_best_node(data, labels):
                 if information_gain > best_information_gain:
                     best_information_gain = information_gain
                     best_attribute_index = attribute_index
-                    best_threshold = data_sorted[row, attribute_index] ##threshold being treated as always strict less than inequality
-                    if best_threshold == min_value:
-                        best_threshold += 0.5
-                    elif best_threshold == max_value:
-                        best_threshold -= 0.5 #avoiding empty splits and infinite recursion...
+                    best_threshold = (data_sorted[row, attribute_index] + data_sorted[row-1, attribute_index])/2
 
 
     return best_attribute_index, best_threshold
