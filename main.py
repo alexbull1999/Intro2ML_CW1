@@ -46,10 +46,12 @@ if __name__ == "__main__":
 
 
 
+
     print("Training the decision tree...")
     classifier = DecisionTreeClassifier()
     root_node = classifier.fit(training_instances, class_labels_str)
     print_tree(root_node)
+
 
 
 

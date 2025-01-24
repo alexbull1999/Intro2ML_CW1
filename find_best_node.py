@@ -43,7 +43,9 @@ def find_best_node(data, labels):
 
 
             #if there is a change in label, calc entropy
-            if labels_sorted[row] != labels_sorted[row-1]: #and data_sorted[row, attribute_index] != data_sorted[row-1, attribute_index]:
+            if data_sorted[row, attribute_index] != data_sorted[row-1, attribute_index]:
+                #if labels_sorted[row] == labels_sorted[row-1]:
+                    #continue ### Excluded this code following chat with Rob <-- see if extra logic required with Josiah
                 # slice up to and not including row (i.e. where the change is)
                 entropy_left = calculate_entropy(labels_sorted[0:row])
                 entropy_right = calculate_entropy(labels_sorted[row:])
