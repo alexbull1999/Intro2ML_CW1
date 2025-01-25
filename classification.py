@@ -60,16 +60,21 @@ class DecisionTreeClassifier(object):
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################
 
+        # set a flag so that we know that the classifier has been trained
+        self.is_trained = True
+
         # 2 base cases - all samples have same label or dataset cannot be split further
         # base case 1: all labels are same
         if len(np.unique(y)) == 1:
-            return DecisionTreeClassifier(label=y[0]) #in this case all labels identical in the sample, so can return any
+            self.label=y[0] #in this case all labels identical in the sample, so can return any
+            return
 
         # base case 2: labels are different but all features are identical
         elif np.all(x == x[0, :], axis=0).all():  # Check if all rows are identical across all columns
             # Return majority class label
             unique, counts = np.unique(y, return_counts=True)
-            return DecisionTreeClassifier(label=unique[np.argmax(counts)])
+            self.label=unique[np.argmax(counts)]
+            return
 
         #else we attempt to find the best node / split point that maximises the information gain and record what it is
         else:
@@ -77,22 +82,25 @@ class DecisionTreeClassifier(object):
             if feature_index is None and threshold is None:
                 #if no split point can improve IG return majority class label
                 unique, counts = np.unique(y, return_counts=True)
-                return DecisionTreeClassifier(label=unique[np.argmax(counts)])
+                self.label=unique[np.argmax(counts)]
+                return
 
             else:
-                node = DecisionTreeClassifier(feature=feature_index, threshold=threshold)
+                self.feature=feature_index
+                self.threshold=threshold
                 # then we need to split the dataset based on this split point,
                 left_dataset, left_labels, right_dataset, right_labels = split_dataset(x, y, feature_index, threshold)
 
-                # finally we can recursively create child nodes
-                node.children = [self.fit(left_dataset, left_labels), self.fit(right_dataset, right_labels)]
+                # recursively create child nodes
+                left_child = DecisionTreeClassifier()
+                left_child.fit(left_dataset, left_labels)
 
+                right_child = DecisionTreeClassifier()
+                right_child.fit(right_dataset, right_labels)
 
+                self.children = [left_child, right_child]
 
-        # set a flag so that we know that the classifier has been trained
-        self.is_trained = True
-
-        return node
+        return self
 
     
     def predict(self, x):
@@ -123,9 +131,14 @@ class DecisionTreeClassifier(object):
         #                 ** TASK 2.2: COMPLETE THIS METHOD **
         #######################################################################
 
-
-
-
+        for row in range(len(x)):
+            tree_position = self
+            while tree_position.is_leaf() is False:
+                if x[row, tree_position.feature] < tree_position.threshold:
+                    tree_position = tree_position.children[0]
+                else:
+                    tree_position = tree_position.children[1]
+            predictions[row] = tree_position.label
     
         # remember to change this if you rename the variable
         return predictions
