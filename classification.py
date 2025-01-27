@@ -30,12 +30,13 @@ class DecisionTreeClassifier(object):
 
     """
 
-    def __init__(self, feature=None, threshold=None, label=None, children=None):
+    def __init__(self, depth=0):
         self.is_trained = False
-        self.feature = feature
-        self.threshold = threshold
-        self.label = label
-        self.children = children or []
+        self.feature = None
+        self.threshold = None
+        self.label = None
+        self.depth = depth
+        self.children = []
 
     def is_leaf(self):
         return self.label is not None
@@ -67,6 +68,7 @@ class DecisionTreeClassifier(object):
         # base case 1: all labels are same
         if len(np.unique(y)) == 1:
             self.label=y[0] #in this case all labels identical in the sample, so can return any
+            #print(f"Depth = {self.depth}")
             return
 
         # base case 2: labels are different but all features are identical
@@ -75,6 +77,18 @@ class DecisionTreeClassifier(object):
             unique, counts = np.unique(y, return_counts=True)
             self.label=unique[np.argmax(counts)]
             return
+
+
+        #case 3: we have reached our max_depth of 5 and want to return the majority label
+        # (max_depth crudely implemented for part 2 of the CW! Not for our part 4 improvements)
+        # we did 17 as we saw it had just as good a performance as a 21 max-depth (that was the depth of original tree)
+        #but reduces overfitting to a minor extent
+        elif self.depth == 17:
+            # Return majority class label
+            unique, counts = np.unique(y, return_counts=True)
+            self.label = unique[np.argmax(counts)]
+            return
+
 
         #else we attempt to find the best node / split point that maximises the information gain and record what it is
         else:
@@ -92,10 +106,10 @@ class DecisionTreeClassifier(object):
                 left_dataset, left_labels, right_dataset, right_labels = split_dataset(x, y, feature_index, threshold)
 
                 # recursively create child nodes
-                left_child = DecisionTreeClassifier()
+                left_child = DecisionTreeClassifier(self.depth+1)
                 left_child.fit(left_dataset, left_labels)
 
-                right_child = DecisionTreeClassifier()
+                right_child = DecisionTreeClassifier(self.depth+1)
                 right_child.fit(right_dataset, right_labels)
 
                 self.children = [left_child, right_child]

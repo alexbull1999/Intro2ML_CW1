@@ -32,10 +32,6 @@ def find_best_node(data, labels):
         data_sorted = data[sorted_indices]
         labels_sorted = labels[sorted_indices]
 
-        #find the min and max value in the dataset for use later to ensure splits don't leave empty sets
-        min_value = np.min(data[:, attribute_index])
-        max_value = np.max(data[:, attribute_index])
-
         for row in range(len(labels_sorted)):
             #skip invalid splits that would leave an empty dataset
             if row == 0 or row == len(labels_sorted):
