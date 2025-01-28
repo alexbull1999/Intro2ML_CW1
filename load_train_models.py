@@ -6,7 +6,7 @@ from classification import *
 from print_tree import print_tree
 
 
-def load_train_models(model_name, instances, class_labels_str):
+def load_train_models(model_name, instances=None, class_labels_str=None):
 
     if os.path.exists(f"models/train_{model_name}_tree.pkl"):
         print(f"Found existing decision tree model for {model_name} data, loading from pickle file:")
@@ -14,8 +14,9 @@ def load_train_models(model_name, instances, class_labels_str):
             tree = pickle.load(file)
         #print("Training decision tree model...")
         #print_tree(tree)
-    else:
-        print(f"Training the {model_name} decision tree with max depth...")
+        return tree
+    elif instances is not None and class_labels_str is not None:
+        print(f"Training the {model_name} decision tree...")
         classifier = DecisionTreeClassifier()
         tree = classifier.fit(instances, class_labels_str)
         print("Saving the decision tree...")
@@ -23,5 +24,8 @@ def load_train_models(model_name, instances, class_labels_str):
             pickle.dump(tree, file)
         # print("Printing tree")
         # print_tree(train_full_tree)
+        return tree
+    else:
+        print(f"Error: No model found of name {model_name} and no training instances and label passed in to train a new model")
+        return None
 
-    return tree

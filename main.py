@@ -93,3 +93,48 @@ if __name__ == "__main__":
     print(accuracies.mean())
     print(accuracies.std())
 
+    print("Combining the predictions on test.txt for all 10 decision trees trained in cross-validation")
+    cross_validation_predictions_list = []
+    for i in range(10):
+        model_name = f"cross_validation_full_k={i}_tree"
+        model_tree = load_train_models(model_name)
+        predictions = model_tree.predict(test_instances)
+        cross_validation_predictions_list.append(predictions)
+
+    #combine predictions into a 2d numpy array
+    predictions_array = np.stack(cross_validation_predictions_list, axis=1)
+    mode_predictions = []
+    # Iterate over each row (instance) in the predictions array
+    for row in predictions_array:
+        # Use np.unique to find unique values and their counts
+        unique_values, counts = np.unique(row, return_counts=True)
+        # Find the mode (value with the highest count)
+        mode_value = unique_values[np.argmax(counts)]
+        mode_predictions.append(mode_value)
+
+    mode_predictions = np.array(mode_predictions)
+    _accuracy = accuracy(test_class_labels_str, mode_predictions)
+    print(f"Accuracy of combined cross validation predictions: {_accuracy}")
+    _confusion = confusion_matrix(test_class_labels_str, mode_predictions)
+    print(f"Confusion matrix of combined cross validation predictions: \n"
+          f"{_confusion}")
+    _accuracy_from_confusion = accuracy_from_confusion(_confusion)
+    print(f"Combined cross validation accuracy from confusion matrix: {_accuracy_from_confusion}")
+    _precision, _macro_precision = precision(test_class_labels_str, mode_predictions)
+    print(f"Precision of combined cross validation predictions: {_precision}")
+    print(f"Macro precision of combined cross validation predictions: {_macro_precision}")
+    _recall, _macro_recall = recall(test_class_labels_str, mode_predictions)
+    print(f"Recall of combined cross validation predictions: {_recall}")
+    print(f"Macro recall of combined cross validation predictions: {_macro_recall}")
+    _f1, _macro_f1 = f1_score(test_class_labels_str, mode_predictions)
+    print(f"F1 score of combined cross validation predictions: {_f1}")
+    print(f"Macro f1 of combined cross validation predictions: {_macro_f1}")
+
+
+
+
+
+
+
+
+
