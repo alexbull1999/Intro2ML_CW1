@@ -83,7 +83,7 @@ class DecisionTreeClassifier(object):
         # (max_depth crudely implemented for part 2 of the CW! Not for our part 4 improvements)
         # we did 17 as we saw it had just as good a performance as a 21 max-depth (that was the depth of original tree)
         #but reduces overfitting to a minor extent
-        elif self.depth == 17:
+        elif self.depth == 12:
             # Return majority class label
             unique, counts = np.unique(y, return_counts=True)
             self.label = unique[np.argmax(counts)]
