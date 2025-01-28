@@ -79,15 +79,15 @@ class DecisionTreeClassifier(object):
             return
 
 
-        #case 3: we have reached our max_depth of 5 and want to return the majority label
-        # (max_depth crudely implemented for part 2 of the CW! Not for our part 4 improvements)
-        # we did 17 as we saw it had just as good a performance as a 21 max-depth (that was the depth of original tree)
-        #but reduces overfitting to a minor extent
-        elif self.depth == 12:
-            # Return majority class label
-            unique, counts = np.unique(y, return_counts=True)
-            self.label = unique[np.argmax(counts)]
-            return
+        # #case 3: we have reached our max_depth of 5 and want to return the majority label
+        # # (max_depth crudely implemented for part 2 of the CW! Not for our part 4 improvements)
+        # # we did 17 as we saw it had just as good a performance as a 21 max-depth (that was the depth of original tree)
+        # #but reduces overfitting to a minor extent
+        # elif self.depth == 12: #so it doesn't take place for now
+        #     # Return majority class label
+        #     unique, counts = np.unique(y, return_counts=True)
+        #     self.label = unique[np.argmax(counts)]
+        #     return
 
 
         #else we attempt to find the best node / split point that maximises the information gain and record what it is

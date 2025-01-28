@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 import os
+from numpy.random import default_rng
 from load_data import read_dataset
 from classification import DecisionTreeClassifier
 from evaluation import confusion_matrix, accuracy_from_confusion, accuracy, precision, recall, f1_score
@@ -9,20 +10,37 @@ from print_tree import print_tree
 from split_dataset import split_dataset
 from find_best_node import find_best_node
 from load_train_models import load_train_models
+from cross_validation import train_test_k_fold
+
 
 if __name__ == "__main__":
+
+    print("Loading the train_full dataset...")
+    full_instances, full_class_labels_index_mapped, full_unique_classes, full_class_labels_str = read_dataset(
+        f"data/train_full.txt")
+
+    print("Loading the train_noisy dataset...")
+    noisy_instances, noisy_class_labels_index_mapped, noisy_unique_classes, noisy_class_labels_str = read_dataset(
+        f"data/train_noisy.txt")
+
+    print("Loading the train_sub dataset...")
+    sub_instances, sub_class_labels_index_mapped, sub_unique_classes, sub_class_labels_str = read_dataset(
+        f"data/train_sub.txt")
+
+
     full = "full"
     noisy = "noisy"
     sub = "sub"
 
-    full_tree = load_train_models(full)
-    noisy_tree = load_train_models(noisy)
-    sub_tree = load_train_models(sub)
+    full_tree = load_train_models(full, full_instances, full_class_labels_str)
+    noisy_tree = load_train_models(noisy, noisy_instances, noisy_class_labels_str)
+    sub_tree = load_train_models(sub, sub_instances, sub_class_labels_str)
 
     # then make predictions as the trees will all have same variable name
     print("Loading the test dataset...")
     test_instances, test_class_labels_index_mapped, unique_test_classes, test_class_labels_str \
         = read_dataset("data/test.txt")
+
     full_predictions = full_tree.predict(test_instances)
     noisy_predictions = noisy_tree.predict(test_instances)
     sub_predictions = sub_tree.predict(test_instances)
@@ -49,5 +67,29 @@ if __name__ == "__main__":
         print(f"F1 score of {name_list[x]} dataset predictions: {_f1}")
         print(f"Macro f1 of {name_list[x]} dataset predictions: {_macro_f1}")
 
+    instances, class_labels_index_mapped, unique_classes, class_labels_str = read_dataset(
+        f"data/train_full.txt")
 
+    seed = 101
+    rg = default_rng(seed)
+
+    n_folds = 10
+    accuracies = np.zeros((n_folds,))
+    for i, (train_indices, test_indices) in enumerate(train_test_k_fold(n_folds, len(instances))):
+        # get the dataset from the correct splits
+        x_train = instances[train_indices, :]
+        y_train = class_labels_str[train_indices]
+        x_test = instances[test_indices, :]
+        y_test = class_labels_str[test_indices]
+
+        # Train the KNN (we'll use one nearest neighbour)
+        model_name = f"cross_validation_full_k={i}_tree"
+        model_tree = load_train_models(model_name, x_train, y_train)
+        predictions = model_tree.predict(x_test)
+        acc = accuracy(y_test, predictions)
+        accuracies[i] = acc
+
+    print(accuracies)
+    print(accuracies.mean())
+    print(accuracies.std())
 

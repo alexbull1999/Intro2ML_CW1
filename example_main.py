@@ -8,6 +8,7 @@ import numpy as np
 
 from classification import DecisionTreeClassifier
 from improvement import train_and_predict
+from print_tree import print_tree
 
 if __name__ == "__main__":
     print("Loading the training dataset...");
@@ -25,6 +26,7 @@ if __name__ == "__main__":
     print("Training the decision tree...")
     classifier = DecisionTreeClassifier()
     classifier.fit(x, y)
+    print_tree(classifier)
 
     print("Loading the test set...")
     
