@@ -40,11 +40,12 @@ class ImprovedDecisionTreeClassifier(object):
         self.majority_class = None #adding this attribute to enable pruning with the prune method
         self.depth = depth
         self.children = []
+        self.root = None
 
     def is_leaf(self):
         return self.label is not None
 
-    def improved_fit(self, x, y):
+    def improved_fit(self, x, y, root=None):
         """ Constructs a decision tree classifier from data
 
         Args:
@@ -62,6 +63,12 @@ class ImprovedDecisionTreeClassifier(object):
         #######################################################################
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################
+
+        #if it is the first call to fit, store the root of the tree
+        if root is None:
+            self.root = self
+        else:
+            self.root = root #passing the reference to the root all the way down
 
         # Store the majority class label at the current node
         unique, counts = np.unique(y, return_counts=True)
@@ -110,16 +117,16 @@ class ImprovedDecisionTreeClassifier(object):
 
                 # recursively create child nodes
                 left_child = ImprovedDecisionTreeClassifier(self.depth + 1)
-                left_child.improved_fit(left_dataset, left_labels)
+                left_child.improved_fit(left_dataset, left_labels, root=self.root)
 
                 right_child = ImprovedDecisionTreeClassifier(self.depth + 1)
-                right_child.improved_fit(right_dataset, right_labels)
+                right_child.improved_fit(right_dataset, right_labels, root=self.root)
 
                 self.children = [left_child, right_child]
 
         return self
 
-    def predict(self, x):
+    def improved_predict(self, x):
         """ Predicts a set of samples using the trained DecisionTreeClassifier.
 
         Assumes that the DecisionTreeClassifier has already been trained.
@@ -162,44 +169,28 @@ class ImprovedDecisionTreeClassifier(object):
     def prune(self, x_val, y_val):
         """Recursively prunes the decision tree, checking if a prune increases accuracy and pruning if so"""
 
-        #if node is already a leaf do nothing
-        if self.is_leaf() is True:
-            return
-
         #recursively prune children
         for child in self.children:
-            child.prune()
+            child.prune(x_val, y_val)
 
         # Check if the current node can be pruned
         if all(child.is_leaf() for child in self.children):
-            # Backup the current state
-            original_tree = copy.deepcopy(self)
+            # Calculate the current accuracy of the tree
+            root = self.root
+            old_predictions = root.improved_predict(x_val)
+            old_accuracy = accuracy(y_val, old_predictions)
 
-            #Replace current stem node as a new leaf node, with the majority class label
-            # Replace current node with a leaf using stored majority class label
-            self.label = self.majority_class
-            self.feature = None
-            self.threshold = None
-            self.children = []
+            #Treat current stem node as a new leaf node, with the majority class label
+            self.label = self.majority_class #this means self.is_leaf() will return true
 
-            # Evaluate accuracy before and after pruning
-            pruned_val_predictions = self.predict(x_val)
-            original_val_predictions = original_tree.predict(x_val)
+            # Evaluate accuracy after pruning
+            pruned_val_predictions = root.improved_predict(x_val)
             new_accuracy = accuracy(y_val, pruned_val_predictions)
-            old_accuracy = accuracy(y_val, original_val_predictions)
 
             # If pruning reduces accuracy, revert it
             if new_accuracy < old_accuracy:
-                #restore previous state
+                #restore previous state of tree
                 self.label = None
-                self.feature = original_tree.feature
-                self.threshold = original_tree.threshold
-                self.children = original_tree.children
-            else:
-                print(f"Pruned node at depth {self.depth}, new accuracy: {new_accuracy}")
 
-
-
-
-
-
+            # else:
+            #     print(f"Pruned node at depth {self.depth}, new accuracy: {new_accuracy}")

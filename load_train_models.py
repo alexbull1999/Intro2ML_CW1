@@ -9,17 +9,17 @@ from print_tree import print_tree
 def load_train_models(model_name, instances=None, class_labels_str=None):
 
     if os.path.exists(f"models/train_{model_name}_tree.pkl"):
-        print(f"Found existing decision tree model for {model_name} data, loading from pickle file:")
+        #print(f"Found existing decision tree model for {model_name} data, loading from pickle file:")
         with open(f"models/train_{model_name}_tree.pkl", "rb") as file:
             tree = pickle.load(file)
         #print("Training decision tree model...")
         #print_tree(tree)
         return tree
     elif instances is not None and class_labels_str is not None:
-        print(f"Training the {model_name} decision tree...")
+        #print(f"Training the {model_name} decision tree...")
         classifier = DecisionTreeClassifier()
         tree = classifier.fit(instances, class_labels_str)
-        print("Saving the decision tree...")
+        #print("Saving the decision tree...")
         with open(f"models/train_{model_name}_tree.pkl", "wb") as file:
             pickle.dump(tree, file)
         # print("Printing tree")

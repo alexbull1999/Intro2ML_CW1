@@ -27,6 +27,9 @@ if __name__ == "__main__":
     sub_instances, sub_class_labels_index_mapped, sub_unique_classes, sub_class_labels_str = read_dataset(
         f"data/train_sub.txt")
 
+    print("Loading the validation dataset...")
+    val_instances, val_class_labels_index_mapped, val_unique_classes, val_class_labels_str = read_dataset(f"data/validation.txt")
+
 
     full = "full"
     noisy = "noisy"
@@ -67,20 +70,17 @@ if __name__ == "__main__":
         print(f"F1 score of {name_list[x]} dataset predictions: {_f1}")
         print(f"Macro f1 of {name_list[x]} dataset predictions: {_macro_f1}")
 
-    instances, class_labels_index_mapped, unique_classes, class_labels_str = read_dataset(
-        f"data/train_full.txt")
-
     seed = 101
     rg = default_rng(seed)
 
     n_folds = 10
     accuracies = np.zeros((n_folds,))
-    for i, (train_indices, test_indices) in enumerate(train_test_k_fold(n_folds, len(instances))):
+    for i, (train_indices, test_indices) in enumerate(train_test_k_fold(n_folds, len(full_instances))):
         # get the dataset from the correct splits
-        x_train = instances[train_indices, :]
-        y_train = class_labels_str[train_indices]
-        x_test = instances[test_indices, :]
-        y_test = class_labels_str[test_indices]
+        x_train = full_instances[train_indices, :]
+        y_train = full_class_labels_str[train_indices]
+        x_test = full_instances[test_indices, :]
+        y_test = full_class_labels_str[test_indices]
 
         # Train the KNN (we'll use one nearest neighbour)
         model_name = f"cross_validation_full_k={i}_tree"
@@ -129,6 +129,23 @@ if __name__ == "__main__":
     _f1, _macro_f1 = f1_score(test_class_labels_str, mode_predictions)
     print(f"F1 score of combined cross validation predictions: {_f1}")
     print(f"Macro f1 of combined cross validation predictions: {_macro_f1}")
+
+    full_improved_predictions_pruning = train_and_predict(full_instances, full_class_labels_str, test_instances, val_instances, val_class_labels_str)
+    _accuracy = accuracy(test_class_labels_str, full_improved_predictions_pruning)
+    print(f"Accuracy of pruned improved tree on full set: {_accuracy}")
+
+    noisy_improved_predictions_pruning = train_and_predict(noisy_instances, noisy_class_labels_str, test_instances, val_instances, val_class_labels_str)
+    _accuracy = accuracy(test_class_labels_str, noisy_improved_predictions_pruning)
+    print(f"Accuracy of pruned improved tree on noisy set: {_accuracy}")
+
+
+
+
+
+
+
+
+
 
 
 
