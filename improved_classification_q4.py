@@ -6,11 +6,12 @@
 # Your tasks: Complete the fit() and predict() methods of DecisionTreeClassifier.
 # You are free to add any other methods as needed.
 ##############################################################################
-
+import copy
 import numpy as np
 from find_best_node import find_best_node
 from split_dataset import split_dataset
 from calc_entropy import calculate_entropy
+from evaluation import accuracy
 
 
 class ImprovedDecisionTreeClassifier(object):
@@ -36,13 +37,14 @@ class ImprovedDecisionTreeClassifier(object):
         self.feature = None
         self.threshold = None
         self.label = None
+        self.majority_class = None #adding this attribute to enable pruning with the prune method
         self.depth = depth
         self.children = []
 
     def is_leaf(self):
         return self.label is not None
 
-    def fit(self, x, y):
+    def improved_fit(self, x, y):
         """ Constructs a decision tree classifier from data
 
         Args:
@@ -61,6 +63,10 @@ class ImprovedDecisionTreeClassifier(object):
         #                 ** TASK 2.1: COMPLETE THIS METHOD **
         #######################################################################
 
+        # Store the majority class label at the current node
+        unique, counts = np.unique(y, return_counts=True)
+        self.majority_class = unique[np.argmax(counts)]  # Store the majority class
+
         # set a flag so that we know that the classifier has been trained
         self.is_trained = True
 
@@ -74,8 +80,7 @@ class ImprovedDecisionTreeClassifier(object):
         # base case 2: labels are different but all features are identical
         elif np.all(x == x[0, :], axis=0).all():  # Check if all rows are identical across all columns
             # Return majority class label
-            unique, counts = np.unique(y, return_counts=True)
-            self.label = unique[np.argmax(counts)]
+            self.label = self.majority_class
             return
 
 
@@ -93,9 +98,8 @@ class ImprovedDecisionTreeClassifier(object):
         else:
             feature_index, threshold = find_best_node(x, y)
             if feature_index is None and threshold is None:
-                # if no split point can improve IG return majority class label
-                unique, counts = np.unique(y, return_counts=True)
-                self.label = unique[np.argmax(counts)]
+                # if no split point can improve the information gain we currently have, return majority class label
+                self.label = self.majority_class
                 return
 
             else:
@@ -106,10 +110,10 @@ class ImprovedDecisionTreeClassifier(object):
 
                 # recursively create child nodes
                 left_child = ImprovedDecisionTreeClassifier(self.depth + 1)
-                left_child.fit(left_dataset, left_labels)
+                left_child.improved_fit(left_dataset, left_labels)
 
                 right_child = ImprovedDecisionTreeClassifier(self.depth + 1)
-                right_child.fit(right_dataset, right_labels)
+                right_child.improved_fit(right_dataset, right_labels)
 
                 self.children = [left_child, right_child]
 
@@ -153,3 +157,49 @@ class ImprovedDecisionTreeClassifier(object):
 
         # remember to change this if you rename the variable
         return predictions
+
+
+    def prune(self, x_val, y_val):
+        """Recursively prunes the decision tree, checking if a prune increases accuracy and pruning if so"""
+
+        #if node is already a leaf do nothing
+        if self.is_leaf() is True:
+            return
+
+        #recursively prune children
+        for child in self.children:
+            child.prune()
+
+        # Check if the current node can be pruned
+        if all(child.is_leaf() for child in self.children):
+            # Backup the current state
+            original_tree = copy.deepcopy(self)
+
+            #Replace current stem node as a new leaf node, with the majority class label
+            # Replace current node with a leaf using stored majority class label
+            self.label = self.majority_class
+            self.feature = None
+            self.threshold = None
+            self.children = []
+
+            # Evaluate accuracy before and after pruning
+            pruned_val_predictions = self.predict(x_val)
+            original_val_predictions = original_tree.predict(x_val)
+            new_accuracy = accuracy(y_val, pruned_val_predictions)
+            old_accuracy = accuracy(y_val, original_val_predictions)
+
+            # If pruning reduces accuracy, revert it
+            if new_accuracy < old_accuracy:
+                #restore previous state
+                self.label = None
+                self.feature = original_tree.feature
+                self.threshold = original_tree.threshold
+                self.children = original_tree.children
+            else:
+                print(f"Pruned node at depth {self.depth}, new accuracy: {new_accuracy}")
+
+
+
+
+
+
